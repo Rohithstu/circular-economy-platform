@@ -1,4 +1,6 @@
 console.log('Backend starting...');
+console.log('Mongo URI:', process.env.MONGO_URI);
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
