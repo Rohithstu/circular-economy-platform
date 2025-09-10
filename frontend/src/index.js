@@ -1,11 +1,9 @@
-// src/index.js
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-// ⬇️ Change this line
-import App from './App';   // It works with App.jsx too (no need to add extension)
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";   // this will now load App.jsx automatically
+import "./index.css";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <App />
