@@ -1,5 +1,3 @@
-// src/App.jsx
-
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Marketplace from "./components/Marketplace";
@@ -43,7 +41,7 @@ const App = () => {
           }
         />
 
-        {/* Catch-all for unknown routes */}
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

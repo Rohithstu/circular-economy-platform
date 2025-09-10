@@ -1,68 +1,57 @@
-// src/components/AuthForm.jsx
-
 import React, { useState } from 'react';
 import './AuthForm.css';
 
-const AuthForm = () => {
+const AuthForm = ({ onLogin }) => {
   const [isSignUpActive, setIsSignUpActive] = useState(false);
 
   const handleSignUpClick = () => setIsSignUpActive(true);
   const handleSignInClick = () => setIsSignUpActive(false);
 
+  const handleSignInSubmit = (e) => {
+    e.preventDefault();
+    // 🚀 Later you can add validation here
+    onLogin(); // tell App.js user is logged in
+  };
+
   return (
-    <div className={`container ${isSignUpActive ? 'right-panel-active' : ''}`} id="container">
+    <div className={`container ${isSignUpActive ? 'right-panel-active' : ''}`}>
+      {/* Sign Up Form */}
       <div className="form-container sign-up-container">
-        <form action="#">
+        <form>
           <h1>Create Account</h1>
-          <div className="social-container">
-            <a href="#" className="social"><i className="fab fa-facebook-f"></i></a>
-            <a href="#" className="social"><i className="fab fa-google-plus-g"></i></a>
-            <a href="#" className="social"><i className="fab fa-linkedin-in"></i></a>
-          </div>
-          <span>or use your email for registration</span>
           <input type="text" placeholder="Name" />
           <input type="email" placeholder="Email" />
           <input type="password" placeholder="Password" />
-          <button>Sign Up</button>
+          <button type="submit">Sign Up</button>
         </form>
       </div>
+
+      {/* Sign In Form */}
       <div className="form-container sign-in-container">
-        <form action="#">
+        <form onSubmit={handleSignInSubmit}>
           <h1>Sign in</h1>
-          <div className="social-container">
-            <a href="#" className="social"><i className="fab fa-facebook-f"></i></a>
-            <a href="#" className="social"><i className="fab fa-google-plus-g"></i></a>
-            <a href="#" className="social"><i className="fab fa-linkedin-in"></i></a>
-          </div>
-          <span>or use your account</span>
-          <input type="email" placeholder="Email" />
-          <input type="password" placeholder="Password" />
+          <input type="email" placeholder="Email" required />
+          <input type="password" placeholder="Password" required />
           <a href="#">Forgot your password?</a>
-          <button>Sign In</button>
+          <button type="submit">Sign In</button>
         </form>
       </div>
+
+      {/* Overlay */}
       <div className="overlay-container">
         <div className="overlay">
           <div className="overlay-panel overlay-left">
             <h1>Welcome Back!</h1>
             <p>To keep connected with us please login with your personal info</p>
-            <button className="ghost" onClick={handleSignInClick} id="signIn">Sign In</button>
+            <button className="ghost" onClick={handleSignInClick}>Sign In</button>
           </div>
           <div className="overlay-panel overlay-right">
             <h1>Hello, Friend!</h1>
-            <p>Enter your personal details and start your journey with us</p>
-            <button className="ghost" onClick={handleSignUpClick} id="signUp">Sign Up</button>
+            <p>Enter your details and start your journey with us</p>
+            <button className="ghost" onClick={handleSignUpClick}>Sign Up</button>
           </div>
         </div>
       </div>
-
-      <footer>
-        <p>
-          Created with <i className="fa fa-heart"></i> by
-          <a target="_blank" href="https://florin-pop.com">Florin Pop</a> - Read how I created this and how you can join the challenge
-          <a target="_blank" href="https://www.florin-pop.com/blog/2019/03/double-slider-sign-in-up-form/"> here</a>.
-        </p>
-      </footer>
     </div>
   );
 };
