@@ -1,3 +1,5 @@
+// src/App.js
+
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Marketplace from "./components/Marketplace";
@@ -17,12 +19,12 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        {/* Default route */}
+        {/* Default route (login page if not authenticated) */}
         <Route
           path="/"
           element={
             isAuthenticated ? (
-              <Marketplace onLogout={handleLogout} />
+              <Navigate to="/marketplace" replace />
             ) : (
               <AuthForm onLogin={handleLogin} />
             )
@@ -41,7 +43,7 @@ const App = () => {
           }
         />
 
-        {/* Catch-all */}
+        {/* Catch-all for unknown routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

@@ -1,55 +1,140 @@
-import React, { useState } from 'react';
-import './AuthForm.css';
+// src/components/AuthForm.jsx
+
+import React, { useState } from "react";
+import "./AuthForm.css";
 
 const AuthForm = ({ onLogin }) => {
-  const [isSignUpActive, setIsSignUpActive] = useState(false);
+  const [isSignUpMode, setIsSignUpMode] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: ""
+  });
 
-  const handleSignUpClick = () => setIsSignUpActive(true);
-  const handleSignInClick = () => setIsSignUpActive(false);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  const handleSignInSubmit = (e) => {
+  const handleSignIn = (e) => {
     e.preventDefault();
-    // 🚀 Later you can add validation here
-    onLogin(); // tell App.js user is logged in
+    // Normally you’d validate against backend here
+    if (formData.email && formData.password) {
+      onLogin(); // ✅ triggers App.js login flow
+    } else {
+      alert("Please enter email and password");
+    }
+  };
+
+  const handleSignUp = (e) => {
+    e.preventDefault();
+    // Normally signup API call here
+    if (formData.name && formData.email && formData.password) {
+      alert("Account created! Please sign in.");
+      setIsSignUpMode(false);
+    } else {
+      alert("Please fill all fields");
+    }
   };
 
   return (
-    <div className={`container ${isSignUpActive ? 'right-panel-active' : ''}`}>
-      {/* Sign Up Form */}
-      <div className="form-container sign-up-container">
-        <form>
-          <h1>Create Account</h1>
-          <input type="text" placeholder="Name" />
-          <input type="email" placeholder="Email" />
-          <input type="password" placeholder="Password" />
-          <button type="submit">Sign Up</button>
-        </form>
+    <div className={`container ${isSignUpMode ? "sign-up-mode" : ""}`}>
+      <div className="forms-container">
+        <div className="signin-signup">
+          {/* Sign In form */}
+          <form onSubmit={handleSignIn} className="sign-in-form">
+            <h2 className="title">Sign in</h2>
+            <div className="input-field">
+              <i className="fas fa-user"></i>
+              <input
+                type="email"
+                placeholder="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="input-field">
+              <i className="fas fa-lock"></i>
+              <input
+                type="password"
+                placeholder="Password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <input type="submit" value="Login" className="btn solid" />
+          </form>
+
+          {/* Sign Up form */}
+          <form onSubmit={handleSignUp} className="sign-up-form">
+            <h2 className="title">Sign up</h2>
+            <div className="input-field">
+              <i className="fas fa-user"></i>
+              <input
+                type="text"
+                placeholder="Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="input-field">
+              <i className="fas fa-envelope"></i>
+              <input
+                type="email"
+                placeholder="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="input-field">
+              <i className="fas fa-lock"></i>
+              <input
+                type="password"
+                placeholder="Password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <input type="submit" className="btn" value="Sign up" />
+          </form>
+        </div>
       </div>
 
-      {/* Sign In Form */}
-      <div className="form-container sign-in-container">
-        <form onSubmit={handleSignInSubmit}>
-          <h1>Sign in</h1>
-          <input type="email" placeholder="Email" required />
-          <input type="password" placeholder="Password" required />
-          <a href="#">Forgot your password?</a>
-          <button type="submit">Sign In</button>
-        </form>
-      </div>
-
-      {/* Overlay */}
-      <div className="overlay-container">
-        <div className="overlay">
-          <div className="overlay-panel overlay-left">
-            <h1>Welcome Back!</h1>
-            <p>To keep connected with us please login with your personal info</p>
-            <button className="ghost" onClick={handleSignInClick}>Sign In</button>
+      <div className="panels-container">
+        <div className="panel left-panel">
+          <div className="content">
+            <h3>New here?</h3>
+            <p>Sign up and start exploring the marketplace for sustainable materials.</p>
+            <button
+              className="btn transparent"
+              onClick={() => setIsSignUpMode(true)}
+            >
+              Sign up
+            </button>
           </div>
-          <div className="overlay-panel overlay-right">
-            <h1>Hello, Friend!</h1>
-            <p>Enter your details and start your journey with us</p>
-            <button className="ghost" onClick={handleSignUpClick}>Sign Up</button>
+          <img src="img/log.svg" className="image" alt="" />
+        </div>
+        <div className="panel right-panel">
+          <div className="content">
+            <h3>One of us?</h3>
+            <p>Already have an account? Just sign in.</p>
+            <button
+              className="btn transparent"
+              onClick={() => setIsSignUpMode(false)}
+            >
+              Sign in
+            </button>
           </div>
+          <img src="img/register.svg" className="image" alt="" />
         </div>
       </div>
     </div>

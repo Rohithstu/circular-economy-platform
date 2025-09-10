@@ -1,9 +1,9 @@
 // src/components/Marketplace.jsx
 
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, MapPin, Star, Leaf, Package, Plus } from 'lucide-react';
+import { Search, Filter, MapPin, Star, Leaf, Package, Plus, LogOut } from 'lucide-react';
 
-const Marketplace = () => {
+const Marketplace = ({ onLogout }) => {
   const [materials, setMaterials] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -113,21 +113,28 @@ const Marketplace = () => {
 
   // Filter materials based on search and category
   const filteredMaterials = materials.filter(material => {
-    const matchesSearch = material.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         material.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         material.category.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || material.category.toLowerCase() === filterCategory.toLowerCase();
+    const matchesSearch =
+      material.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      material.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      material.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      filterCategory === 'all' ||
+      material.category.toLowerCase() === filterCategory.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
   const categories = ['All', 'Metals', 'Plastics', 'Organic', 'Electronics', 'Textiles', 'Chemicals'];
 
   const getUrgencyColor = (urgency) => {
-    switch(urgency) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+    switch (urgency) {
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -144,7 +151,11 @@ const Marketplace = () => {
             </div>
           </div>
           <div className="flex flex-col items-end space-y-2">
-            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getUrgencyColor(material.urgency)}`}>
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-medium ${getUrgencyColor(
+                material.urgency
+              )}`}
+            >
               {material.urgency} priority
             </span>
             <div className="flex items-center bg-green-50 px-3 py-1 rounded-full">
@@ -228,10 +239,19 @@ const Marketplace = () => {
               </div>
             </div>
 
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium flex items-center">
-              <Plus className="w-4 h-4 mr-2" />
-              List Material
-            </button>
+            <div className="flex items-center space-x-3">
+              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium flex items-center">
+                <Plus className="w-4 h-4 mr-2" />
+                List Material
+              </button>
+              <button
+                onClick={onLogout}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium flex items-center"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -393,21 +413,24 @@ const Marketplace = () => {
 
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2">Contact Information</h3>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="font-medium text-gray-900">{selectedMaterial.contactInfo.name}</p>
-                    <p className="text-gray-600">{selectedMaterial.contactInfo.email}</p>
-                    <p className="text-gray-600">{selectedMaterial.contactInfo.phone}</p>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                    <p><span className="font-medium">Contact:</span> {selectedMaterial.contactInfo.name}</p>
+                    <p><span className="font-medium">Phone:</span> {selectedMaterial.contactInfo.phone}</p>
+                    <p><span className="font-medium">Email:</span> {selectedMaterial.contactInfo.email}</p>
                   </div>
                 </div>
+              </div>
 
-                <div className="flex space-x-4">
-                  <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 font-medium">
-                    Request Quote
-                  </button>
-                  <button className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 font-medium">
-                    Contact Supplier
-                  </button>
-                </div>
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  onClick={() => setSelectedMaterial(null)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Close
+                </button>
+                <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                  Contact Supplier
+                </button>
               </div>
             </div>
           </div>
