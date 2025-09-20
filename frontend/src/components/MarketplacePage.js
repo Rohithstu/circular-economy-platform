@@ -1,3 +1,4 @@
+// components/MarketplacePage.js (corrected)
 import React from 'react';
 import MaterialCard from './MaterialCard';
 
@@ -12,8 +13,14 @@ const MarketplacePage = ({
   setPriceFilter, 
   addToCart, 
   user,
-  setCurrentPage 
+  setCurrentPage,
+  setAuthMode
 }) => {
+  const openAuthForm = (mode) => {
+    setAuthMode(mode);
+    setCurrentPage('authform');
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Material Marketplace</h1>
@@ -75,11 +82,12 @@ const MarketplacePage = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {materials.map(material => (
             <MaterialCard 
-              key={material.id} 
+              key={material._id || material.id} 
               material={material} 
               addToCart={addToCart} 
               user={user}
               setCurrentPage={setCurrentPage}
+              setAuthMode={setAuthMode}
             />
           ))}
         </div>
@@ -90,6 +98,16 @@ const MarketplacePage = ({
           </svg>
           <h3 className="mt-4 text-lg font-medium text-gray-900">No materials found</h3>
           <p className="mt-2 text-gray-500">Try adjusting your search or filter criteria.</p>
+          {user && (
+            <div className="mt-6">
+              <button
+                onClick={() => setCurrentPage('list-material')}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                List First Material
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

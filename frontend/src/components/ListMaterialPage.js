@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ListMaterialPage = ({ user, setCurrentPage }) => {
+const ListMaterialPage = ({ user, setCurrentPage, openAuthModal, API_BASE_URL }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -13,6 +13,8 @@ const ListMaterialPage = ({ user, setCurrentPage }) => {
     image: ''
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -21,21 +23,54 @@ const ListMaterialPage = ({ user, setCurrentPage }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Material listed:', formData);
-    alert('Material listed successfully!');
-    setFormData({
-      title: '',
-      description: '',
-      category: '',
-      quantity: '',
-      unit: '',
-      price: '',
-      isFree: false,
-      location: '',
-      image: ''
-    });
+    
+    if (!user) {
+      openAuthModal('login');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/materials`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...formData,
+          userId: user.id,
+          company: user.company
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Material listed successfully!');
+        setFormData({
+          title: '',
+          description: '',
+          category: '',
+          quantity: '',
+          unit: '',
+          price: '',
+          isFree: false,
+          location: '',
+          image: ''
+        });
+      } else {
+        alert(data.error || 'Failed to list material');
+      }
+    } catch (error) {
+      console.error('Error listing material:', error);
+      alert('Failed to list material. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!user) {
@@ -49,7 +84,7 @@ const ListMaterialPage = ({ user, setCurrentPage }) => {
           <p className="mt-2 text-gray-500">You need to be logged in to list materials on our platform.</p>
           <div className="mt-6">
             <button
-              onClick={() => setCurrentPage('login')}
+              onClick={() => openAuthModal('login')}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               Sign in
@@ -225,9 +260,10 @@ const ListMaterialPage = ({ user, setCurrentPage }) => {
           <div className="mt-6">
             <button
               type="submit"
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              disabled={isLoading}
+              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
             >
-              List Material
+              {isLoading ? 'Listing Material...' : 'List Material'}
             </button>
           </div>
         </form>

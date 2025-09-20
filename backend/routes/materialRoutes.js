@@ -2,23 +2,102 @@ const express = require('express');
 const router = express.Router();
 const Material = require('../models/Material');
 
-router.get('/materials', async (req, res) => {
+// Get all materials with filters
+router.get('/', async (req, res) => {
     try {
-        const materials = await Material.find();
-        res.json(materials);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        const { search, category, price, page = 1, limit = 10 } = req.query;
+        let query = { available: true };
+
+        if (search) {
+            query.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        if (category && category !== 'all') {
+            query.category = category;
+        }
+
+        if (price === 'free') {
+            query.isFree = true;
+        } else if (price === 'paid') {
+            query.isFree = false;
+        }
+
+        const materials = await Material.find(query)
+            .populate('userId', 'name company')
+            .sort({ createdAt: -1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
+
+        const total = await Material.countDocuments(query);
+
+        res.json({
+            materials,
+            totalPages: Math.ceil(total / limit),
+            currentPage: page,
+            total
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
-router.post('/materials', async (req, res) => {
-    const { name, description, quantity, unit, listedBy } = req.body;
+// Get single material
+router.get('/:id', async (req, res) => {
     try {
-        const material = new Material({ name, description, quantity, unit, listedBy });
+        const material = await Material.findById(req.params.id).populate('userId', 'name company');
+        if (!material) {
+            return res.status(404).json({ error: 'Material not found' });
+        }
+        res.json(material);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Create material
+router.post('/', async (req, res) => {
+    try {
+        const material = new Material(req.body);
         await material.save();
+        await material.populate('userId', 'name company');
         res.status(201).json(material);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// Update material
+router.put('/:id', async (req, res) => {
+    try {
+        const material = await Material.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        ).populate('userId', 'name company');
+
+        if (!material) {
+            return res.status(404).json({ error: 'Material not found' });
+        }
+
+        res.json(material);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// Delete material
+router.delete('/:id', async (req, res) => {
+    try {
+        const material = await Material.findByIdAndDelete(req.params.id);
+        if (!material) {
+            return res.status(404).json({ error: 'Material not found' });
+        }
+        res.json({ message: 'Material deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 

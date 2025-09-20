@@ -1,6 +1,12 @@
+// components/HomePage.js (completed)
 import React from 'react';
 
-const HomePage = ({ setCurrentPage }) => {
+const HomePage = ({ setCurrentPage, user, setAuthMode }) => {
+  const openAuthForm = (mode) => {
+    setAuthMode(mode);
+    setCurrentPage('authform');
+  };
+
   return (
     <div>
       {/* Hero Section */}
@@ -20,12 +26,14 @@ const HomePage = ({ setCurrentPage }) => {
               >
                 Explore Marketplace
               </button>
-              <button 
-                className="ml-4 bg-transparent border border-white text-white px-8 py-3 rounded-md text-base font-medium hover:bg-white hover:text-green-700 md:py-4 md:text-lg md:px-10"
-                onClick={() => setCurrentPage('register')}
-              >
-                Join Now
-              </button>
+              {!user && (
+                <button 
+                  className="ml-4 bg-transparent border border-white text-white px-8 py-3 rounded-md text-base font-medium hover:bg-white hover:text-green-700 md:py-4 md:text-lg md:px-10"
+                  onClick={() => openAuthForm('register')}
+                >
+                  Join Now
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -86,8 +94,8 @@ const HomePage = ({ setCurrentPage }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="mt-4 text-xl font-medium text-gray-900">Make Exchange</h3>
-              <p className="mt-2 text-gray-600">Coordinate pickup or delivery and complete the transaction securely.</p>
+              <h3 className="mt-4 text-xl font-medium text-gray-900">Connect & Exchange</h3>
+              <p className="mt-2 text-gray-600">Build relationships with other businesses and complete sustainable transactions.</p>
             </div>
           </div>
         </div>
@@ -97,14 +105,33 @@ const HomePage = ({ setCurrentPage }) => {
       <section className="bg-green-700 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-extrabold text-white">Ready to Join the Circular Economy?</h2>
-          <p className="mt-4 text-xl text-green-100">Sign up today and start transforming waste into value.</p>
+          <p className="mt-4 text-xl text-green-100">
+            Start reducing waste and creating value from your by-products today.
+          </p>
           <div className="mt-8">
-            <button 
-              className="bg-white text-green-700 px-8 py-3 rounded-md text-base font-medium hover:bg-gray-100 md:py-4 md:text-lg md:px-10"
-              onClick={() => setCurrentPage('register')}
-            >
-              Get Started
-            </button>
+            {user ? (
+              <button 
+                className="bg-white text-green-700 px-8 py-3 rounded-md text-base font-medium hover:bg-gray-100 md:py-4 md:text-lg md:px-10"
+                onClick={() => setCurrentPage('marketplace')}
+              >
+                Browse Marketplace
+              </button>
+            ) : (
+              <div className="space-x-4">
+                <button 
+                  className="bg-white text-green-700 px-8 py-3 rounded-md text-base font-medium hover:bg-gray-100 md:py-4 md:text-lg md:px-10"
+                  onClick={() => openAuthForm('register')}
+                >
+                  Sign Up Free
+                </button>
+                <button 
+                  className="bg-transparent border border-white text-white px-8 py-3 rounded-md text-base font-medium hover:bg-white hover:text-green-700 md:py-4 md:text-lg md:px-10"
+                  onClick={() => openAuthForm('login')}
+                >
+                  Sign In
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
