@@ -12,12 +12,11 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// ✅ ADD ROUTE IMPORTS HERE
+// ✅ ADD THESE LINES (MISSING IN YOUR CODE)
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const materialRoutes = require('./routes/materialRoutes');
 
-// ✅ USE ROUTES
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/materials', materialRoutes);
