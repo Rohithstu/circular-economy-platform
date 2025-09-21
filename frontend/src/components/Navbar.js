@@ -1,4 +1,4 @@
-// components/Navbar.js (updated)
+// components/Navbar.js - Fixed
 import React from 'react';
 
 const Navbar = ({ currentPage, setCurrentPage, user, handleLogout, cartItemsCount, setAuthMode }) => {
@@ -63,12 +63,6 @@ const Navbar = ({ currentPage, setCurrentPage, user, handleLogout, cartItemsCoun
                   <span className="text-sm text-gray-700 mr-2">Hello, {user.name}</span>
                   <button 
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                    onClick={() => setCurrentPage('dashboard')}
-                  >
-                    Dashboard
-                  </button>
-                  <button 
-                    className="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                     onClick={handleLogout}
                   >
                     Logout

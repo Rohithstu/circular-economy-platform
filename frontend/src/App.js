@@ -1,21 +1,11 @@
-// App.js - Fixed version
+// App.js - Simplified version without React Router
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HomePage from './components/HomePage';
 import MarketplacePage from './components/MarketplacePage';
 import CartPage from './components/CartPage';
 import ListMaterialPage from './components/ListMaterialPage';
 import AuthForm from './components/AuthForm';
-
-// Dashboard components
-import BuyerDashboard from './pages/buyer/BuyerDashboardPage';
-import BuyerOrdersPage from './pages/buyer/BuyerOrdersPage';
-import SellerDashboard from './pages/seller/SellerDashboardPage';
-import SellerListingsPage from './pages/seller/SellerListingsPage';
-
-import DashboardLayout from './layouts/DashboardLayout';
-import { BuyerRoute, SellerRoute, ProtectedRoute } from './components/RouteGuard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './App.css';
 
@@ -25,6 +15,8 @@ const API_BASE_URL = 'http://localhost:5000/api';
 // Main App Component
 function AppContent() {
   const { user, login, logout } = useAuth();
+  const [currentPage, setCurrentPage] = useState('home');
+  const [authMode, setAuthMode] = useState('login');
   const [cartItems, setCartItems] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [filteredMaterials, setFilteredMaterials] = useState([]);
@@ -32,8 +24,6 @@ function AppContent() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
-  const [authMode, setAuthMode] = useState('login');
-  const [currentPage, setCurrentPage] = useState('home');
 
   // Fetch materials from backend
   useEffect(() => {
@@ -125,6 +115,7 @@ function AppContent() {
 
       if (response.ok) {
         login(data.user, data.token);
+        setCurrentPage('home'); // Redirect to home after login
         return true;
       } else {
         alert(data.error || 'Login failed');
@@ -151,6 +142,7 @@ function AppContent() {
 
       if (response.ok) {
         login(data.user, data.token);
+        setCurrentPage('home'); // Redirect to home after registration
         return true;
       } else {
         alert(data.error || 'Registration failed');
@@ -166,7 +158,7 @@ function AppContent() {
   const addToCart = (material) => {
     if (!user) {
       setAuthMode('login');
-      setCurrentPage('auth');
+      setCurrentPage('authform');
       return;
     }
     setCartItems([...cartItems, { ...material, cartId: Date.now() }]);
@@ -180,172 +172,87 @@ function AppContent() {
     setAuthMode(mode);
   };
 
-  const openAuthModal = (mode) => {
-    setAuthMode(mode);
-    setCurrentPage('auth');
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case 'home':
+        return (
+          <HomePage 
+            setCurrentPage={setCurrentPage} 
+            user={user} 
+            setAuthMode={setAuthMode} 
+          />
+        );
+      case 'marketplace':
+        return (
+          <MarketplacePage 
+            materials={filteredMaterials} 
+            isLoading={isLoading}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
+            priceFilter={priceFilter}
+            setPriceFilter={setPriceFilter}
+            addToCart={addToCart}
+            user={user}
+            setCurrentPage={setCurrentPage}
+            setAuthMode={setAuthMode}
+          />
+        );
+      case 'authform':
+        return (
+          <AuthForm 
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            mode={authMode}
+            switchMode={switchAuthMode}
+            onSuccess={() => setCurrentPage('home')}
+            onCancel={() => setCurrentPage('home')}
+          />
+        );
+      case 'list-material':
+        return (
+          <ListMaterialPage 
+            user={user}
+            setCurrentPage={setCurrentPage}
+            openAuthModal={(mode) => {
+              setAuthMode(mode);
+              setCurrentPage('authform');
+            }}
+            API_BASE_URL={API_BASE_URL}
+          />
+        );
+      case 'cart':
+        return (
+          <CartPage 
+            cartItems={cartItems} 
+            removeFromCart={removeFromCart}
+            setCurrentPage={setCurrentPage}
+            user={user}
+          />
+        );
+      default:
+        return (
+          <HomePage 
+            setCurrentPage={setCurrentPage} 
+            user={user} 
+            setAuthMode={setAuthMode} 
+          />
+        );
+    }
   };
 
   return (
     <div className="app-container">
-      <Router>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={
-            <>
-              <Navbar 
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                user={user} 
-                handleLogout={logout}
-                cartItemsCount={cartItems.length}
-                setAuthMode={setAuthMode}
-              />
-              <HomePage 
-                setCurrentPage={setCurrentPage} 
-                user={user} 
-                setAuthMode={setAuthMode} 
-              />
-            </>
-          } />
-
-          <Route path="/marketplace" element={
-            <>
-              <Navbar 
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                user={user} 
-                handleLogout={logout}
-                cartItemsCount={cartItems.length}
-                setAuthMode={setAuthMode}
-              />
-              <MarketplacePage 
-                materials={filteredMaterials} 
-                isLoading={isLoading}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                categoryFilter={categoryFilter}
-                setCategoryFilter={setCategoryFilter}
-                priceFilter={priceFilter}
-                setPriceFilter={setPriceFilter}
-                addToCart={addToCart}
-                user={user}
-                setCurrentPage={setCurrentPage}
-                setAuthMode={setAuthMode}
-              />
-            </>
-          } />
-
-          <Route path="/auth" element={
-            <AuthForm 
-              onLogin={handleLogin}
-              onRegister={handleRegister}
-              mode={authMode}
-              switchMode={switchAuthMode}
-              onSuccess={() => setCurrentPage('home')}
-              onCancel={() => setCurrentPage('home')}
-            />
-          } />
-
-          <Route path="/list-material" element={
-            <>
-              <Navbar 
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                user={user} 
-                handleLogout={logout}
-                cartItemsCount={cartItems.length}
-                setAuthMode={setAuthMode}
-              />
-              <ListMaterialPage 
-                user={user}
-                setCurrentPage={setCurrentPage}
-                openAuthModal={openAuthModal}
-                API_BASE_URL={API_BASE_URL}
-              />
-            </>
-          } />
-
-          <Route path="/cart" element={
-            <>
-              <Navbar 
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                user={user} 
-                handleLogout={logout}
-                cartItemsCount={cartItems.length}
-                setAuthMode={setAuthMode}
-              />
-              <CartPage 
-                cartItems={cartItems} 
-                removeFromCart={removeFromCart}
-                setCurrentPage={setCurrentPage}
-                user={user}
-              />
-            </>
-          } />
-
-          {/* Protected Dashboard Routes */}
-          <Route path="/dashboard/*" element={
-            <ProtectedRoute user={user}>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }>
-            {/* Buyer Routes */}
-            <Route path="buyer" element={
-              <BuyerRoute user={user}>
-                <BuyerDashboard />
-              </BuyerRoute>
-            } />
-
-            <Route path="buyer/orders" element={
-              <BuyerRoute user={user}>
-                <BuyerOrdersPage />
-              </BuyerRoute>
-            } />
-
-            <Route path="buyer/cart" element={
-              <BuyerRoute user={user}>
-                <CartPage 
-                  cartItems={cartItems} 
-                  removeFromCart={removeFromCart}
-                  user={user}
-                  setCurrentPage={setCurrentPage}
-                />
-              </BuyerRoute>
-            } />
-
-            {/* Seller Routes */}
-            <Route path="seller" element={
-              <SellerRoute user={user}>
-                <SellerDashboard />
-              </SellerRoute>
-            } />
-
-            <Route path="seller/listings" element={
-              <SellerRoute user={user}>
-                <SellerListingsPage />
-              </SellerRoute>
-            } />
-
-            <Route path="seller/listings/new" element={
-              <SellerRoute user={user}>
-                <ListMaterialPage 
-                  user={user}
-                  setCurrentPage={setCurrentPage}
-                  openAuthModal={openAuthModal}
-                  API_BASE_URL={API_BASE_URL}
-                />
-              </SellerRoute>
-            } />
-
-            {/* Default redirect */}
-            <Route index element={<Navigate to={user?.role === 'seller' || user?.role === 'both' ? "seller" : "buyer"} replace />} />
-          </Route>
-
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
+      <Navbar 
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        user={user} 
+        handleLogout={logout}
+        cartItemsCount={cartItems.length}
+        setAuthMode={setAuthMode}
+      />
+      {renderCurrentPage()}
     </div>
   );
 }
