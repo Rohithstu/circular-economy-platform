@@ -1,4 +1,3 @@
-// App.js - Simplified version without React Router
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import HomePage from './components/HomePage';
@@ -24,6 +23,7 @@ function AppContent() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
 
   // Fetch materials from backend
   useEffect(() => {
@@ -51,19 +51,6 @@ function AppContent() {
               company: 'EcoWood Industries',
               location: 'San Francisco, CA',
               image: 'https://images.unsplash.com/photo-1598974357801-cbca100e65d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80'
-            },
-            {
-              _id: 2,
-              title: 'Plastic Packaging Materials',
-              description: 'Clean plastic packaging materials available for reuse. Various sizes and types.',
-              price: 45,
-              isFree: false,
-              quantity: 500,
-              unit: 'kg',
-              category: 'Plastic',
-              company: 'GreenPack Solutions',
-              location: 'Oakland, CA',
-              image: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80'
             }
           ]);
         }
@@ -103,6 +90,7 @@ function AppContent() {
 
   const handleLogin = async (email, password) => {
     try {
+      setAuthError('');
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -115,21 +103,22 @@ function AppContent() {
 
       if (response.ok) {
         login(data.user, data.token);
-        setCurrentPage('home'); // Redirect to home after login
+        setCurrentPage('home');
         return true;
       } else {
-        alert(data.error || 'Login failed');
+        setAuthError(data.error || 'Login failed');
         return false;
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Login failed. Please try again.');
+      setAuthError('Login failed. Please try again.');
       return false;
     }
   };
 
   const handleRegister = async (userData) => {
     try {
+      setAuthError('');
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
@@ -142,15 +131,15 @@ function AppContent() {
 
       if (response.ok) {
         login(data.user, data.token);
-        setCurrentPage('home'); // Redirect to home after registration
+        setCurrentPage('home');
         return true;
       } else {
-        alert(data.error || 'Registration failed');
+        setAuthError(data.error || 'Registration failed');
         return false;
       }
     } catch (error) {
       console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
+      setAuthError('Registration failed. Please try again.');
       return false;
     }
   };
@@ -170,6 +159,7 @@ function AppContent() {
 
   const switchAuthMode = (mode) => {
     setAuthMode(mode);
+    setAuthError('');
   };
 
   const renderCurrentPage = () => {
@@ -208,6 +198,7 @@ function AppContent() {
             switchMode={switchAuthMode}
             onSuccess={() => setCurrentPage('home')}
             onCancel={() => setCurrentPage('home')}
+            error={authError}
           />
         );
       case 'list-material':

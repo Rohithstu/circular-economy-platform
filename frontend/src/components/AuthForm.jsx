@@ -141,10 +141,16 @@ const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel }
           <form onSubmit={(e) => handleSubmit(e, 'login')}>
             <h1>Sign in</h1>
             <div className="social-container">
-              <a href="#" className="social"><i className="fab fa-facebook-f"></i></a>
-              <a href="#" className="social"><i className="fab fa-google-plus-g"></i></a>
-              <a href="#" className="social"><i className="fab fa-linkedin-in"></i></a>
-            </div>
+  <button type="button" className="social" aria-label="Sign in with Facebook">
+    <i className="fab fa-facebook-f"></i>
+  </button>
+  <button type="button" className="social" aria-label="Sign in with Google">
+    <i className="fab fa-google-plus-g"></i>
+  </button>
+  <button type="button" className="social" aria-label="Sign in with LinkedIn">
+    <i className="fab fa-linkedin-in"></i>
+  </button>
+</div>
             <span>or use your account</span>
             <input 
               type="email" 
