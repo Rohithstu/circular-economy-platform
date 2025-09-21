@@ -1,18 +1,15 @@
+// components/RouteGuard.js - Fixed
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 
-export const BuyerRoute = ({ children }) => {
-  const { user } = useAuth();
-  return user?.isBuyer ? children : <Navigate to="/unauthorized" replace />;
+export const BuyerRoute = ({ children, user }) => {
+  return user && (user.role === 'buyer' || user.role === 'both') ? children : <Navigate to="/unauthorized" replace />;
 };
 
-export const SellerRoute = ({ children }) => {
-  const { user } = useAuth();
-  return user?.isSeller ? children : <Navigate to="/unauthorized" replace />;
+export const SellerRoute = ({ children, user }) => {
+  return user && (user.role === 'seller' || user.role === 'both') ? children : <Navigate to="/unauthorized" replace />;
 };
 
-export const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
+export const ProtectedRoute = ({ children, user }) => {
   return user ? children : <Navigate to="/auth?mode=login" replace />;
 };

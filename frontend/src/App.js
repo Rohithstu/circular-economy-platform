@@ -1,3 +1,4 @@
+// App.js - Fixed version
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
@@ -6,13 +7,15 @@ import MarketplacePage from './components/MarketplacePage';
 import CartPage from './components/CartPage';
 import ListMaterialPage from './components/ListMaterialPage';
 import AuthForm from './components/AuthForm';
-import BuyerDashboard from './components/dashboard/BuyerDashboard';
-import SellerDashboard from './components/dashboard/SellerDashboard';
-import SellerListingsPage from './components/dashboard/SellerListingsPage';
-import SellerOrdersPage from './components/dashboard/SellerOrdersPage';
-import BuyerOrdersPage from './components/dashboard/BuyerOrdersPage';
-import DashboardLayout from './components/layout/DashboardLayout';
-import RouteGuard from './components/RouteGuard';
+
+// Dashboard components
+import BuyerDashboard from './pages/buyer/BuyerDashboardPage';
+import BuyerOrdersPage from './pages/buyer/BuyerOrdersPage';
+import SellerDashboard from './pages/seller/SellerDashboardPage';
+import SellerListingsPage from './pages/seller/SellerListingsPage';
+
+import DashboardLayout from './layouts/DashboardLayout';
+import { BuyerRoute, SellerRoute, ProtectedRoute } from './components/RouteGuard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './App.css';
 
@@ -30,6 +33,7 @@ function AppContent() {
   const [priceFilter, setPriceFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
   const [authMode, setAuthMode] = useState('login');
+  const [currentPage, setCurrentPage] = useState('home');
 
   // Fetch materials from backend
   useEffect(() => {
@@ -70,32 +74,6 @@ function AppContent() {
               company: 'GreenPack Solutions',
               location: 'Oakland, CA',
               image: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80'
-            },
-            {
-              _id: 3,
-              title: 'Cardboard Boxes',
-              description: 'Assorted cardboard boxes in good condition. Various sizes available.',
-              price: 0,
-              isFree: true,
-              quantity: 200,
-              unit: 'boxes',
-              category: 'Paper',
-              company: 'EcoPackaging Inc.',
-              location: 'San Jose, CA',
-              image: 'https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80'
-            },
-            {
-              _id: 4,
-              title: 'Metal Scraps',
-              description: 'Assorted metal scraps from manufacturing process. Primarily steel and aluminum.',
-              price: 120,
-              isFree: false,
-              quantity: 800,
-              unit: 'kg',
-              category: 'Metal',
-              company: 'MetalWorks Ltd.',
-              location: 'Sacramento, CA',
-              image: 'https://images.unsplash.com/photo-1583226120755-6e32f9d3b31c?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80'
             }
           ]);
         }
@@ -112,24 +90,24 @@ function AppContent() {
   // Filter materials based on search and filters
   useEffect(() => {
     let results = materials;
-    
+
     if (searchTerm) {
-      results = results.filter(material => 
+      results = results.filter(material =>
         material.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         material.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
+
     if (categoryFilter !== 'all') {
       results = results.filter(material => material.category === categoryFilter);
     }
-    
+
     if (priceFilter === 'free') {
       results = results.filter(material => material.isFree);
     } else if (priceFilter === 'paid') {
       results = results.filter(material => !material.isFree);
     }
-    
+
     setFilteredMaterials(results);
   }, [materials, searchTerm, categoryFilter, priceFilter]);
 
@@ -142,9 +120,9 @@ function AppContent() {
         },
         body: JSON.stringify({ email, password }),
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
         login(data.user, data.token);
         return true;
@@ -168,9 +146,9 @@ function AppContent() {
         },
         body: JSON.stringify(userData),
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
         login(data.user, data.token);
         return true;
@@ -188,9 +166,10 @@ function AppContent() {
   const addToCart = (material) => {
     if (!user) {
       setAuthMode('login');
+      setCurrentPage('auth');
       return;
     }
-    setCartItems([...cartItems, {...material, cartId: Date.now()}]);
+    setCartItems([...cartItems, { ...material, cartId: Date.now() }]);
   };
 
   const removeFromCart = (cartId) => {
@@ -201,6 +180,11 @@ function AppContent() {
     setAuthMode(mode);
   };
 
+  const openAuthModal = (mode) => {
+    setAuthMode(mode);
+    setCurrentPage('auth');
+  };
+
   return (
     <div className="app-container">
       <Router>
@@ -209,20 +193,28 @@ function AppContent() {
           <Route path="/" element={
             <>
               <Navbar 
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
                 user={user} 
-                logout={logout}
+                handleLogout={logout}
                 cartItemsCount={cartItems.length}
                 setAuthMode={setAuthMode}
               />
-              <HomePage user={user} setAuthMode={setAuthMode} />
+              <HomePage 
+                setCurrentPage={setCurrentPage} 
+                user={user} 
+                setAuthMode={setAuthMode} 
+              />
             </>
           } />
-          
+
           <Route path="/marketplace" element={
             <>
               <Navbar 
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
                 user={user} 
-                logout={logout}
+                handleLogout={logout}
                 cartItemsCount={cartItems.length}
                 setAuthMode={setAuthMode}
               />
@@ -237,82 +229,119 @@ function AppContent() {
                 setPriceFilter={setPriceFilter}
                 addToCart={addToCart}
                 user={user}
+                setCurrentPage={setCurrentPage}
                 setAuthMode={setAuthMode}
               />
             </>
           } />
-          
+
           <Route path="/auth" element={
             <AuthForm 
               onLogin={handleLogin}
               onRegister={handleRegister}
               mode={authMode}
               switchMode={switchAuthMode}
-              onCancel={() => window.history.back()}
+              onSuccess={() => setCurrentPage('home')}
+              onCancel={() => setCurrentPage('home')}
             />
           } />
-          
+
+          <Route path="/list-material" element={
+            <>
+              <Navbar 
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                user={user} 
+                handleLogout={logout}
+                cartItemsCount={cartItems.length}
+                setAuthMode={setAuthMode}
+              />
+              <ListMaterialPage 
+                user={user}
+                setCurrentPage={setCurrentPage}
+                openAuthModal={openAuthModal}
+                API_BASE_URL={API_BASE_URL}
+              />
+            </>
+          } />
+
+          <Route path="/cart" element={
+            <>
+              <Navbar 
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                user={user} 
+                handleLogout={logout}
+                cartItemsCount={cartItems.length}
+                setAuthMode={setAuthMode}
+              />
+              <CartPage 
+                cartItems={cartItems} 
+                removeFromCart={removeFromCart}
+                setCurrentPage={setCurrentPage}
+                user={user}
+              />
+            </>
+          } />
+
           {/* Protected Dashboard Routes */}
-          <Route path="/dashboard" element={
-            <RouteGuard>
-              <DashboardLayout user={user} logout={logout} cartItemsCount={cartItems.length} />
-            </RouteGuard>
+          <Route path="/dashboard/*" element={
+            <ProtectedRoute user={user}>
+              <DashboardLayout />
+            </ProtectedRoute>
           }>
             {/* Buyer Routes */}
             <Route path="buyer" element={
-              <RouteGuard requiredRole="buyer">
+              <BuyerRoute user={user}>
                 <BuyerDashboard />
-              </RouteGuard>
+              </BuyerRoute>
             } />
-            
+
             <Route path="buyer/orders" element={
-              <RouteGuard requiredRole="buyer">
+              <BuyerRoute user={user}>
                 <BuyerOrdersPage />
-              </RouteGuard>
+              </BuyerRoute>
             } />
-            
+
             <Route path="buyer/cart" element={
-              <RouteGuard requiredRole="buyer">
+              <BuyerRoute user={user}>
                 <CartPage 
                   cartItems={cartItems} 
                   removeFromCart={removeFromCart}
                   user={user}
+                  setCurrentPage={setCurrentPage}
                 />
-              </RouteGuard>
+              </BuyerRoute>
             } />
-            
+
             {/* Seller Routes */}
             <Route path="seller" element={
-              <RouteGuard requiredRole="seller">
+              <SellerRoute user={user}>
                 <SellerDashboard />
-              </RouteGuard>
+              </SellerRoute>
             } />
-            
+
             <Route path="seller/listings" element={
-              <RouteGuard requiredRole="seller">
+              <SellerRoute user={user}>
                 <SellerListingsPage />
-              </RouteGuard>
+              </SellerRoute>
             } />
-            
-            <Route path="seller/orders" element={
-              <RouteGuard requiredRole="seller">
-                <SellerOrdersPage />
-              </RouteGuard>
-            } />
-            
+
             <Route path="seller/listings/new" element={
-              <RouteGuard requiredRole="seller">
+              <SellerRoute user={user}>
                 <ListMaterialPage 
                   user={user}
+                  setCurrentPage={setCurrentPage}
+                  openAuthModal={openAuthModal}
                   API_BASE_URL={API_BASE_URL}
                 />
-              </RouteGuard>
+              </SellerRoute>
             } />
-            
-            {/* Shared Routes */}
-            <Route index element={<Navigate to={user?.isSeller ? "seller" : "buyer"} replace />} />
+
+            {/* Default redirect */}
+            <Route index element={<Navigate to={user?.role === 'seller' || user?.role === 'both' ? "seller" : "buyer"} replace />} />
           </Route>
-          
+
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
