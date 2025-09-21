@@ -1,20 +1,27 @@
-// App.js
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HomePage from './components/HomePage';
 import MarketplacePage from './components/MarketplacePage';
 import CartPage from './components/CartPage';
 import ListMaterialPage from './components/ListMaterialPage';
 import AuthForm from './components/AuthForm';
-import UserDashboard from './components/UserDashboard';
+import BuyerDashboard from './components/dashboard/BuyerDashboard';
+import SellerDashboard from './components/dashboard/SellerDashboard';
+import SellerListingsPage from './components/dashboard/SellerListingsPage';
+import SellerOrdersPage from './components/dashboard/SellerOrdersPage';
+import BuyerOrdersPage from './components/dashboard/BuyerOrdersPage';
+import DashboardLayout from './components/layout/DashboardLayout';
+import RouteGuard from './components/RouteGuard';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './App.css';
 
 // API base URL
 const API_BASE_URL = 'http://localhost:5000/api';
 
-function App() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [user, setUser] = useState(null);
+// Main App Component
+function AppContent() {
+  const { user, login, logout } = useAuth();
   const [cartItems, setCartItems] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [filteredMaterials, setFilteredMaterials] = useState([]);
@@ -23,15 +30,6 @@ function App() {
   const [priceFilter, setPriceFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
   const [authMode, setAuthMode] = useState('login');
-
-  // Load user from localStorage on app start
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    if (savedUser && token) {
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
 
   // Fetch materials from backend
   useEffect(() => {
@@ -58,7 +56,7 @@ function App() {
               category: 'Wood',
               company: 'EcoWood Industries',
               location: 'San Francisco, CA',
-              image: 'https://images.unsplash.com/photo-1595078475328-1ab05d0a6a0e?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80'
+              image: 'https://images.unsplash.com/photo-1598974357801-cbca100e65d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80'
             },
             {
               _id: 2,
@@ -108,10 +106,8 @@ function App() {
       }
     };
 
-    if (currentPage === 'marketplace') {
-      fetchMaterials();
-    }
-  }, [currentPage]);
+    fetchMaterials();
+  }, []);
 
   // Filter materials based on search and filters
   useEffect(() => {
@@ -150,10 +146,7 @@ function App() {
       const data = await response.json();
       
       if (response.ok) {
-        setUser(data.user);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setCurrentPage('dashboard');
+        login(data.user, data.token);
         return true;
       } else {
         alert(data.error || 'Login failed');
@@ -164,14 +157,6 @@ function App() {
       alert('Login failed. Please try again.');
       return false;
     }
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setCartItems([]);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setCurrentPage('home');
   };
 
   const handleRegister = async (userData) => {
@@ -187,10 +172,7 @@ function App() {
       const data = await response.json();
       
       if (response.ok) {
-        setUser(data.user);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setCurrentPage('dashboard');
+        login(data.user, data.token);
         return true;
       } else {
         alert(data.error || 'Registration failed');
@@ -206,7 +188,6 @@ function App() {
   const addToCart = (material) => {
     if (!user) {
       setAuthMode('login');
-      setCurrentPage('authform');
       return;
     }
     setCartItems([...cartItems, {...material, cartId: Date.now()}]);
@@ -220,81 +201,132 @@ function App() {
     setAuthMode(mode);
   };
 
-  const renderPage = () => {
-    switch(currentPage) {
-      case 'home':
-        return <HomePage setCurrentPage={setCurrentPage} user={user} setAuthMode={setAuthMode} />;
-      case 'marketplace':
-        return <MarketplacePage 
-          materials={filteredMaterials} 
-          isLoading={isLoading}
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          categoryFilter={categoryFilter}
-          setCategoryFilter={setCategoryFilter}
-          priceFilter={priceFilter}
-          setPriceFilter={setPriceFilter}
-          addToCart={addToCart}
-          user={user}
-          setCurrentPage={setCurrentPage}
-          setAuthMode={setAuthMode}
-        />;
-      case 'cart':
-        return <CartPage 
-          cartItems={cartItems} 
-          removeFromCart={removeFromCart}
-          setCurrentPage={setCurrentPage}
-          user={user}
-          setAuthMode={setAuthMode}
-        />;
-      case 'list-material':
-        return <ListMaterialPage 
-          user={user}
-          setCurrentPage={setCurrentPage}
-          API_BASE_URL={API_BASE_URL}
-          setAuthMode={setAuthMode}
-        />;
-      case 'authform':
-        return <AuthForm 
-          onLogin={handleLogin}
-          onRegister={handleRegister}
-          mode={authMode}
-          switchMode={switchAuthMode}
-          onSuccess={() => setCurrentPage('dashboard')}
-          onCancel={() => setCurrentPage('home')}
-        />;
-      case 'dashboard':
-        return user ? (
-          <UserDashboard 
-            user={user} 
-            setCurrentPage={setCurrentPage} 
-            handleLogout={handleLogout}
-            cartItemsCount={cartItems.length}
-          />
-        ) : (
-          <HomePage setCurrentPage={setCurrentPage} user={user} setAuthMode={setAuthMode} />
-        );
-      default:
-        return <HomePage setCurrentPage={setCurrentPage} user={user} setAuthMode={setAuthMode} />;
-    }
-  };
-
   return (
     <div className="app-container">
-      {currentPage !== 'authform' && (
-        <Navbar 
-          currentPage={currentPage} 
-          setCurrentPage={setCurrentPage}
-          user={user}
-          handleLogout={handleLogout}
-          cartItemsCount={cartItems.length}
-          setAuthMode={setAuthMode}
-        />
-      )}
-      <main className="main-content">
-        {renderPage()}
-      </main>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={
+            <>
+              <Navbar 
+                user={user} 
+                logout={logout}
+                cartItemsCount={cartItems.length}
+                setAuthMode={setAuthMode}
+              />
+              <HomePage user={user} setAuthMode={setAuthMode} />
+            </>
+          } />
+          
+          <Route path="/marketplace" element={
+            <>
+              <Navbar 
+                user={user} 
+                logout={logout}
+                cartItemsCount={cartItems.length}
+                setAuthMode={setAuthMode}
+              />
+              <MarketplacePage 
+                materials={filteredMaterials} 
+                isLoading={isLoading}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                categoryFilter={categoryFilter}
+                setCategoryFilter={setCategoryFilter}
+                priceFilter={priceFilter}
+                setPriceFilter={setPriceFilter}
+                addToCart={addToCart}
+                user={user}
+                setAuthMode={setAuthMode}
+              />
+            </>
+          } />
+          
+          <Route path="/auth" element={
+            <AuthForm 
+              onLogin={handleLogin}
+              onRegister={handleRegister}
+              mode={authMode}
+              switchMode={switchAuthMode}
+              onCancel={() => window.history.back()}
+            />
+          } />
+          
+          {/* Protected Dashboard Routes */}
+          <Route path="/dashboard" element={
+            <RouteGuard>
+              <DashboardLayout user={user} logout={logout} cartItemsCount={cartItems.length} />
+            </RouteGuard>
+          }>
+            {/* Buyer Routes */}
+            <Route path="buyer" element={
+              <RouteGuard requiredRole="buyer">
+                <BuyerDashboard />
+              </RouteGuard>
+            } />
+            
+            <Route path="buyer/orders" element={
+              <RouteGuard requiredRole="buyer">
+                <BuyerOrdersPage />
+              </RouteGuard>
+            } />
+            
+            <Route path="buyer/cart" element={
+              <RouteGuard requiredRole="buyer">
+                <CartPage 
+                  cartItems={cartItems} 
+                  removeFromCart={removeFromCart}
+                  user={user}
+                />
+              </RouteGuard>
+            } />
+            
+            {/* Seller Routes */}
+            <Route path="seller" element={
+              <RouteGuard requiredRole="seller">
+                <SellerDashboard />
+              </RouteGuard>
+            } />
+            
+            <Route path="seller/listings" element={
+              <RouteGuard requiredRole="seller">
+                <SellerListingsPage />
+              </RouteGuard>
+            } />
+            
+            <Route path="seller/orders" element={
+              <RouteGuard requiredRole="seller">
+                <SellerOrdersPage />
+              </RouteGuard>
+            } />
+            
+            <Route path="seller/listings/new" element={
+              <RouteGuard requiredRole="seller">
+                <ListMaterialPage 
+                  user={user}
+                  API_BASE_URL={API_BASE_URL}
+                />
+              </RouteGuard>
+            } />
+            
+            {/* Shared Routes */}
+            <Route index element={<Navigate to={user?.isSeller ? "seller" : "buyer"} replace />} />
+          </Route>
+          
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
     </div>
+  );
+}
+
+// Main App Wrapper
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
