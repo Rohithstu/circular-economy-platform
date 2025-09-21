@@ -1,8 +1,7 @@
-// components/AuthForm.js
 import React, { useState, useEffect } from 'react';
 import './AuthForm.css';
 
-const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel }) => {
+const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel, error }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -71,14 +70,33 @@ const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel }
 
   return (
     <div className="auth-container">
+      {error && (
+        <div style={{
+          color: 'red',
+          padding: '10px',
+          margin: '10px',
+          border: '1px solid red',
+          borderRadius: '5px',
+          textAlign: 'center'
+        }}>
+          Error: {error}
+        </div>
+      )}
+      
       <div className="container" id="container">
         <div className="form-container sign-up-container">
           <form onSubmit={(e) => handleSubmit(e, 'register')}>
             <h1>Create Account</h1>
             <div className="social-container">
-              <a href="#" className="social"><i className="fab fa-facebook-f"></i></a>
-              <a href="#" className="social"><i className="fab fa-google-plus-g"></i></a>
-              <a href="#" className="social"><i className="fab fa-linkedin-in"></i></a>
+              <button type="button" className="social" aria-label="Sign up with Facebook">
+                <i className="fab fa-facebook-f"></i>
+              </button>
+              <button type="button" className="social" aria-label="Sign up with Google">
+                <i className="fab fa-google-plus-g"></i>
+              </button>
+              <button type="button" className="social" aria-label="Sign up with LinkedIn">
+                <i className="fab fa-linkedin-in"></i>
+              </button>
             </div>
             <span>or use your email for registration</span>
             <input 
@@ -141,16 +159,16 @@ const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel }
           <form onSubmit={(e) => handleSubmit(e, 'login')}>
             <h1>Sign in</h1>
             <div className="social-container">
-  <button type="button" className="social" aria-label="Sign in with Facebook">
-    <i className="fab fa-facebook-f"></i>
-  </button>
-  <button type="button" className="social" aria-label="Sign in with Google">
-    <i className="fab fa-google-plus-g"></i>
-  </button>
-  <button type="button" className="social" aria-label="Sign in with LinkedIn">
-    <i className="fab fa-linkedin-in"></i>
-  </button>
-</div>
+              <button type="button" className="social" aria-label="Sign in with Facebook">
+                <i className="fab fa-facebook-f"></i>
+              </button>
+              <button type="button" className="social" aria-label="Sign in with Google">
+                <i className="fab fa-google-plus-g"></i>
+              </button>
+              <button type="button" className="social" aria-label="Sign in with LinkedIn">
+                <i className="fab fa-linkedin-in"></i>
+              </button>
+            </div>
             <span>or use your account</span>
             <input 
               type="email" 
@@ -168,7 +186,9 @@ const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel }
               onChange={handleChange}
               required 
             />
-            <a href="#">Forgot your password?</a>
+            <button type="button" className="forgot-password-link">
+              Forgot your password?
+            </button>
             <button type="submit" disabled={isLoading}>
               {isLoading ? 'Signing In...' : 'Sign In'}
             </button>
