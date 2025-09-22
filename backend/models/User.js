@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: [true, 'Password is required'], minlength: [6, 'Password must be at least 6 characters'] },
   company: { type: String, required: [true, 'Company name is required'] },
   role: { type: String, enum: ['buyer', 'seller', 'both'], default: 'buyer' },
+  profilePicture: { type: String, default: '' }, // ADDED: Profile picture field
   profile: { 
     bio: String,
     website: String,

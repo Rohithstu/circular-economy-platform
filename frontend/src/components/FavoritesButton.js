@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
-const FavoritesButton = ({ materialId, userId }) => {
+const FavoritesButton = ({ materialId, userId, className = '' }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    checkFavoriteStatus();
+    if (userId) {
+      checkFavoriteStatus();
+    }
   }, [materialId, userId]);
 
   const checkFavoriteStatus = async () => {
@@ -13,14 +15,16 @@ const FavoritesButton = ({ materialId, userId }) => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/favorites', {
+      const response = await fetch('http://localhost:5000/api/favorites', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       
-      const favorites = await response.json();
-      setIsFavorite(favorites.some(fav => fav.material._id === materialId));
+      if (response.ok) {
+        const favorites = await response.json();
+        setIsFavorite(favorites.some(fav => fav.material._id === materialId));
+      }
     } catch (error) {
       console.error('Error checking favorite status:', error);
     }
@@ -37,14 +41,14 @@ const FavoritesButton = ({ materialId, userId }) => {
       const token = localStorage.getItem('token');
       
       if (isFavorite) {
-        await fetch(`/api/favorites/${materialId}`, {
+        await fetch(`http://localhost:5000/api/favorites/${materialId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
       } else {
-        await fetch('/api/favorites', {
+        await fetch('http://localhost:5000/api/favorites', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -66,14 +70,14 @@ const FavoritesButton = ({ materialId, userId }) => {
     <button
       onClick={toggleFavorite}
       disabled={isLoading}
-      className={`p-2 rounded-full ${
+      className={`p-2 rounded-full transition duration-200 ${
         isFavorite 
-          ? 'bg-red-500 text-white' 
+          ? 'bg-red-500 text-white hover:bg-red-600' 
           : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-      }`}
+      } ${className}`}
       title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
     >
-      {isFavorite ? '❤️' : '🤍'}
+      {isLoading ? '⏳' : (isFavorite ? '❤️' : '🤍')}
     </button>
   );
 };

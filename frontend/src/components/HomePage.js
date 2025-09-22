@@ -146,8 +146,7 @@ const HomePage = ({ setCurrentPage, user, setAuthMode }) => {
         </div>
 
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-emerald-900 via-green-800 to-teal-900 text-white py-20 lg:py-28 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-green-600/20 to-emerald-600/20"></div>
+        <section className="relative bg-gradient-to-br from-emerald-900 via-green-800 to-teal-900 text-white py-20 lg:py-28 overflow-hidden mt-16">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(34,197,94,0.2)_0%,transparent_50%),radial-gradient(circle_at_75%_75%,rgba(16,185,129,0.2)_0%,transparent_50%)]"></div>
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -366,59 +365,59 @@ const HomePage = ({ setCurrentPage, user, setAuthMode }) => {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800 text-white py-12 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-800/50 to-slate-800/50"></div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+       {/* Footer */}
+<footer className="bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800 text-white py-12 relative overflow-hidden">
+  <div className="absolute inset-0 bg-gradient-to-r from-gray-800/50 to-slate-800/50"></div>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-            {/* Top: EcoTrade description */}
-            <div className="animate-fade-in-up mb-8">
-              <h3 className="text-xl font-bold mb-4 gradient-text">EcoTrade</h3>
-              <p className="text-gray-400">
-                Transforming industrial waste into valuable resources through intelligent marketplace connections.
-              </p>
-            </div>
+    {/* Top: EcoTrade description */}
+    <div className="animate-fade-in-up mb-8 text-center">
+      <h3 className="text-xl font-bold mb-4 gradient-text">EcoTrade</h3>
+      <p className="text-gray-400 max-w-2xl mx-auto">
+        Transforming industrial waste into valuable resources through intelligent marketplace connections.
+      </p>
+    </div>
 
-            {/* Navigation & Resources side by side */}
-            <div className="flex flex-col md:flex-row justify-center md:justify-start gap-12 mb-12">
-              {/* Navigation */}
-              <div className="animate-fade-in-up text-center md:text-left">
-                <h4 className="font-semibold mb-4">Navigation</h4>
-                <ul className="space-y-2 text-gray-400">
-                  <li><button onClick={() => setCurrentPage('home')} className="bg-green-700 hover:text-green-400 transition-colors duration-300">Home</button></li>
-                  <li><button onClick={() => setCurrentPage('marketplace')} className="bg-green-700 hover:text-green-400 transition-colors duration-300">Marketplace</button></li>
-                  <li><button className=" bg-green-700 hover:text-green-400 transition-colors duration-300">How It Works</button></li>
-                </ul>
-              </div>
-               
-              {/* Resources */}
-              <div className="animate-fade-in-up text-center md:text-left">
-                <h4 className="font-semibold mb-4">Resources</h4>
-                <ul className="space-y-2 text-gray-400">
-                  <li><button className="hover:text-green-400 transition-colors duration-300">Case Studies</button></li>
-                  <li><button className="hover:text-green-400 transition-colors duration-300">Sustainability Guide</button></li>
-                  <li><button className="hover:text-green-400 transition-colors duration-300">API Documentation</button></li>
-                </ul>
-              </div>
-            </div>
+    {/* Navigation & Resources & Contact in a single row */}
+    <div className="flex flex-col md:flex-row justify-center gap-12 mb-4 text-center md:text-left">
+      {/* Navigation */}
+      <div className="animate-fade-in-up">
+        <h4 className="font-semibold mb-4">Navigation</h4>
+        <ul className="space-y-2 text-gray-400">
+          <li><button onClick={() => setCurrentPage('home')} className="hover:text-green-400 transition-colors duration-300">Home</button></li>
+          <li><button onClick={() => setCurrentPage('marketplace')} className="hover:text-green-400 transition-colors duration-300">Marketplace</button></li>
+          <li><button className="hover:text-green-400 transition-colors duration-300">How It Works</button></li>
+        </ul>
+      </div>
+       
+      {/* Resources */}
+      <div className="animate-fade-in-up">
+        <h4 className="font-semibold mb-4">Resources</h4>
+        <ul className="space-y-2 text-gray-400">
+          <li><button className="hover:text-green-400 transition-colors duration-300">Case Studies</button></li>
+          <li><button className="hover:text-green-400 transition-colors duration-300">Sustainability Guide</button></li>
+          <li><button className="hover:text-green-400 transition-colors duration-300">API Documentation</button></li>
+        </ul>
+      </div>
 
-            {/* Contact Us centered below */}
-            <div className="animate-fade-in-up text-center mb-81">
-              <h4 className="font-semibold mb-4 text-red-600">Contact Us</h4>
-              <ul className="space-y-2 text-white">
-                <li>📧 reddykrohith4@gmail.com</li>
-                <li>📞 +91 8688068256 </li>
-                <li>🏢 Green Business District</li>
-              </ul>
-            </div>
+      {/* Contact Us */}
+      <div className="animate-fade-in-up">
+        <h4 className="font-semibold mb-4 text-green-400">Contact Us</h4>
+        <ul className="space-y-2 text-gray-300">
+          <li>📧 reddykrohith4@gmail.com</li>
+          <li>📞 +91 8688068256</li>
+          <li>🏢 Green Business District</li>
+        </ul>
+      </div>
+    </div>
 
-            {/* Bottom copyright */}
-            <div className="border-t border-gray-700 mt-8 pt-8 text-center text-red-600 animate-fade-in-up">
-              <p>&copy; 2024 EcoTrade. All rights reserved. Building a sustainable future together.</p>
-            </div>
+    {/* Bottom copyright */}
+    <div className="border-t border-gray-700 pt-8 text-center text-gray-400 animate-fade-in-up">
+      <p>&copy; 2024 EcoTrade. All rights reserved. Building a sustainable future together.</p>
+    </div>
 
-          </div>
-        </footer>
+  </div>
+</footer>
 
       </div>
     </>

@@ -249,6 +249,7 @@ function AppContent() {
             userId={user?.id} 
             currentUser={user}
             setCurrentPage={setCurrentPage}
+            handleLogout={handleLogout}
           />
         );
       default:
@@ -272,7 +273,10 @@ function AppContent() {
         cartItemsCount={cartItems.length}
         setAuthMode={setAuthMode}
       />
-      {renderCurrentPage()}
+      {/* ✅ FIX: Add padding-top wrapper to push content below navbar */}
+      <div className="pt-16 min-h-screen">
+        {renderCurrentPage()}
+      </div>
     </div>
   );
 }

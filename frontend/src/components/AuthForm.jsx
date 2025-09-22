@@ -150,7 +150,7 @@ const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel, 
               <option value="seller">Seller</option>
               <option value="both">Both</option>
             </select>
-            <button type="submit" disabled={isLoading}>
+            <button type="submit" disabled={isLoading} style={{ marginTop: '20px' }}>
               {isLoading ? 'Signing Up...' : 'Sign Up'}
             </button>
           </form>
