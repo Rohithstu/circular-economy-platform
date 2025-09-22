@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Material = require('../models/Material');
+const { protect } = require('../middleware/auth'); // Import auth middleware
 
 // Get all materials with filters
 router.get('/', async (req, res) => {
@@ -57,10 +58,21 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Create material
-router.post('/', async (req, res) => {
+// Create material - PROTECTED ROUTE
+router.post('/', protect, async (req, res) => {
     try {
-        const material = new Material(req.body);
+        // ✅ Check if user is seller or both
+        if (req.user.role !== 'seller' && req.user.role !== 'both') {
+            return res.status(403).json({ 
+                error: 'Access denied. Only sellers can list materials.' 
+            });
+        }
+
+        const material = new Material({
+            ...req.body,
+            userId: req.user.id // Set the user ID from auth middleware
+        });
+        
         await material.save();
         await material.populate('userId', 'name company');
         res.status(201).json(material);
@@ -69,8 +81,8 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Update material
-router.put('/:id', async (req, res) => {
+// Update material - PROTECTED ROUTE
+router.put('/:id', protect, async (req, res) => {
     try {
         const material = await Material.findByIdAndUpdate(
             req.params.id,
@@ -88,8 +100,8 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// Delete material
-router.delete('/:id', async (req, res) => {
+// Delete material - PROTECTED ROUTE
+router.delete('/:id', protect, async (req, res) => {
     try {
         const material = await Material.findByIdAndDelete(req.params.id);
         if (!material) {

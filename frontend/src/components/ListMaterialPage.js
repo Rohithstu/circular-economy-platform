@@ -14,6 +14,10 @@ const ListMaterialPage = ({ user, setCurrentPage, openAuthModal, API_BASE_URL })
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  // ✅ Check if user can list materials
+  const canListMaterial = user && (user.role === 'seller' || user.role === 'both');
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -31,7 +35,15 @@ const ListMaterialPage = ({ user, setCurrentPage, openAuthModal, API_BASE_URL })
       return;
     }
 
+    // ✅ Check if user has permission
+    if (!canListMaterial) {
+      setError('Only sellers can list materials. Please contact admin to change your role.');
+      return;
+    }
+
     setIsLoading(true);
+    setError('');
+    
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/materials`, {
@@ -63,15 +75,41 @@ const ListMaterialPage = ({ user, setCurrentPage, openAuthModal, API_BASE_URL })
           image: ''
         });
       } else {
-        alert(data.error || 'Failed to list material');
+        setError(data.error || 'Failed to list material');
       }
     } catch (error) {
       console.error('Error listing material:', error);
-      alert('Failed to list material. Please try again.');
+      setError('Failed to list material. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  // ✅ Show access denied for non-sellers
+  if (user && !canListMaterial) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white p-8 rounded-lg shadow-md text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h3 className="mt-4 text-lg font-medium text-gray-900">Access Denied</h3>
+          <p className="mt-2 text-gray-500">
+            Only sellers can list materials. Your current role is "{user.role}".
+          </p>
+          <p className="mt-2 text-gray-500">
+            Please contact administrator to change your role to "seller" or "both".
+          </p>
+          <button
+            onClick={() => setCurrentPage('marketplace')}
+            className="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
+          >
+            Back to Marketplace
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -98,6 +136,12 @@ const ListMaterialPage = ({ user, setCurrentPage, openAuthModal, API_BASE_URL })
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">List New Material</h1>
+      
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          {error}
+        </div>
+      )}
       
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
         <form onSubmit={handleSubmit} className="px-4 py-5 sm:p-6">

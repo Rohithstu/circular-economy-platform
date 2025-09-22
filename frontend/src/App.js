@@ -33,8 +33,10 @@ function AppContent() {
         const response = await fetch(`${API_BASE_URL}/materials`);
         if (response.ok) {
           const data = await response.json();
-          setMaterials(data);
-          setFilteredMaterials(data);
+          // ✅ Handle both array and object responses safely
+          const materialsArray = Array.isArray(data) ? data : (data.materials || []);
+          setMaterials(materialsArray);
+          setFilteredMaterials(materialsArray);
         } else {
           console.error('Failed to fetch materials');
           // Fallback to mock data
@@ -56,6 +58,7 @@ function AppContent() {
         }
       } catch (error) {
         console.error('Error fetching materials:', error);
+        setMaterials([]); // ✅ Set empty array on error
       } finally {
         setIsLoading(false);
       }
@@ -66,7 +69,8 @@ function AppContent() {
 
   // Filter materials based on search and filters
   useEffect(() => {
-    let results = materials;
+    // ✅ Add null check to prevent "materials is not iterable" error
+    let results = Array.isArray(materials) ? materials : [];
 
     if (searchTerm) {
       results = results.filter(material =>
@@ -162,6 +166,13 @@ function AppContent() {
     setAuthError('');
   };
 
+  // ✅ Handle logout with cleanup
+  const handleLogout = () => {
+    logout();
+    setCartItems([]); // Clear cart on logout
+    setCurrentPage('home'); // Redirect to home
+  };
+
   const renderCurrentPage = () => {
     switch (currentPage) {
       case 'home':
@@ -239,7 +250,7 @@ function AppContent() {
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         user={user} 
-        handleLogout={logout}
+        handleLogout={handleLogout} // ✅ Pass the logout function
         cartItemsCount={cartItems.length}
         setAuthMode={setAuthMode}
       />
