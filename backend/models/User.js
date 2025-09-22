@@ -26,19 +26,48 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['buyer', 'seller', 'both'],
     default: 'buyer'
+  },
+  // ✅ NEW: Enhanced profile fields
+  profile: {
+    bio: String,
+    website: String,
+    phone: String,
+    address: {
+      street: String,
+      city: String,
+      state: String,
+      zipCode: String,
+      country: String
+    },
+    logo: String,
+    banner: String
+  },
+  stats: {
+    rating: { type: Number, default: 0 },
+    reviewCount: { type: Number, default: 0 },
+    totalListings: { type: Number, default: 0 },
+    totalSales: { type: Number, default: 0 },
+    memberSince: { type: Date, default: Date.now }
+  },
+  verification: {
+    isVerified: { type: Boolean, default: false },
+    documents: [{
+      type: String, // URL to uploaded document
+      documentType: String
+    }]
+  },
+  socialLinks: {
+    website: String,
+    linkedin: String,
+    twitter: String
+  },
+  preferences: {
+    emailNotifications: { type: Boolean, default: true },
+    newsletter: { type: Boolean, default: false }
   }
 }, {
   timestamps: true
 });
 
-userSchema.methods.correctPassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
-});
-
+// ... existing methods
 module.exports = mongoose.model('User', userSchema);
