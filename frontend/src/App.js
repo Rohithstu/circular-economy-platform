@@ -5,6 +5,8 @@ import MarketplacePage from './components/MarketplacePage';
 import CartPage from './components/CartPage';
 import ListMaterialPage from './components/ListMaterialPage';
 import AuthForm from './components/AuthForm';
+import FavoritesPage from './components/FavoritesPage';
+import UserProfile from './components/UserProfile';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './App.css';
 
@@ -233,6 +235,22 @@ function AppContent() {
             user={user}
           />
         );
+      // ✅ ADD THESE NEW PAGES:
+      case 'favorites':
+        return (
+          <FavoritesPage 
+            user={user}
+            setCurrentPage={setCurrentPage}
+          />
+        );
+      case 'profile':
+        return (
+          <UserProfile 
+            userId={user?.id} 
+            currentUser={user}
+            setCurrentPage={setCurrentPage}
+          />
+        );
       default:
         return (
           <HomePage 
@@ -250,7 +268,7 @@ function AppContent() {
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         user={user} 
-        handleLogout={handleLogout} // ✅ Pass the logout function
+        handleLogout={handleLogout}
         cartItemsCount={cartItems.length}
         setAuthMode={setAuthMode}
       />

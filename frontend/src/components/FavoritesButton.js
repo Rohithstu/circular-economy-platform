@@ -71,8 +71,9 @@ const FavoritesButton = ({ materialId, userId }) => {
           ? 'bg-red-500 text-white' 
           : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
       }`}
+      title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
     >
-      ♥
+      {isFavorite ? '❤️' : '🤍'}
     </button>
   );
 };

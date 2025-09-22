@@ -1,4 +1,3 @@
-// contexts/AuthContext.js - Fixed
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -16,7 +15,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     

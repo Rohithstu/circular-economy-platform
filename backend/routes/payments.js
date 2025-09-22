@@ -1,5 +1,4 @@
 const express = require('express');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
@@ -8,20 +7,29 @@ router.post('/create-payment-intent', protect, async (req, res) => {
   try {
     const { amount, materialId } = req.body;
     
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
+    // Simulate payment processing
+    const mockPaymentIntent = {
+      client_secret: `pi_mock_${Date.now()}_${materialId}`,
+      amount: amount * 100,
       currency: 'usd',
-      metadata: {
-        materialId,
-        userId: req.user.id,
-        company: req.user.company
-      }
-    });
+      status: 'requires_payment_method'
+    };
 
-    res.json({ clientSecret: paymentIntent.client_secret });
+    res.json({ 
+      clientSecret: mockPaymentIntent.client_secret,
+      message: 'Mock payment intent created. Add STRIPE_SECRET_KEY for real payments.'
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+router.get('/config', (req, res) => {
+  res.json({
+    paymentSystem: 'Stripe (Mock Mode)',
+    configured: false,
+    message: 'Running in mock mode. Set STRIPE_SECRET_KEY for real payments.'
+  });
 });
 
 module.exports = router;
