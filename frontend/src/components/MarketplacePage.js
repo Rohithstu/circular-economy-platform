@@ -59,7 +59,7 @@ const MarketplacePage = ({
             <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-fade-in-up">
               Sustainable Materials Marketplace
             </h1>
-            <p className="text-xl text-green-100 max-w-3xl mx-auto">
+            <p className="text-xl text-green-100 max-w-3xl mx-auto text-center">
               Discover quality recycled materials from trusted suppliers. Join the circular economy today.
             </p>
           </div>

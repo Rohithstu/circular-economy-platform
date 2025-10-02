@@ -1,7 +1,9 @@
 // components/MaterialCard.js
-import React from 'react';
+import React, { useState } from 'react';
 
-const MaterialCard = ({ material, addToCart, user, setCurrentPage, setAuthMode }) => {
+const MaterialCard = ({ material, addToCart, user, setCurrentPage, setAuthMode, onImageClick }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
   const handleAddToCart = () => {
     if (!user) {
       setAuthMode('login');
@@ -24,20 +26,96 @@ const MaterialCard = ({ material, addToCart, user, setCurrentPage, setAuthMode }
     return colors[category?.toLowerCase()] || colors.other;
   };
 
+  // Get all available images
+  const getImages = () => {
+    const images = [];
+    if (material.imageUrl) images.push(material.imageUrl);
+    if (material.images && material.images.length > 0) {
+      images.push(...material.images);
+    }
+    return images.length > 0 ? images : ['https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'];
+  };
+
+  const images = getImages();
+
+  const nextImage = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleImageClick = () => {
+    if (onImageClick) {
+      onImageClick(material, currentImageIndex);
+    }
+  };
+
   return (
     <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:transform hover:-translate-y-2 border border-green-100/50 overflow-hidden">
-      {/* Image Section */}
-      <div className="relative h-48 overflow-hidden">
+      {/* Image Section - Fixed 1:1 Aspect Ratio */}
+      <div className="relative aspect-square overflow-hidden bg-gray-100">
         <img
-          src={material.imageUrl || 'https://source.unsplash.com/featured/?recycle,material'}
+          src={images[currentImageIndex]}
           alt={material.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+          className="w-full h-full object-cover cursor-pointer group-hover:scale-105 transition duration-500"
+          onClick={handleImageClick}
+          onError={(e) => {
+            e.target.src = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80';
+          }}
         />
+        
+        {/* Image Navigation Arrows */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </>
+        )}
+        
+        {/* Image Dots Indicator */}
+        {images.length > 1 && (
+          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentImageIndex(index);
+                }}
+                className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                  index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Category Badge */}
         <div className="absolute top-3 left-3">
           <span className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(material.category)}`}>
             {material.category || 'Other'}
           </span>
         </div>
+        
+        {/* Verified Badge */}
         <div className="absolute top-3 right-3">
           {material.isVerified && (
             <span className="px-2 py-1 bg-green-500 text-white rounded-full text-xs font-medium">

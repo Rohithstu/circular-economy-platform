@@ -12,6 +12,8 @@ const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel, 
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
 
   useEffect(() => {
     // Initialize the panel based on the mode
@@ -68,6 +70,54 @@ const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel, 
     }
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!forgotPasswordEmail) {
+      alert('Please enter your email address');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      // Add your forgot password logic here
+      console.log('Forgot password requested for:', forgotPasswordEmail);
+      alert(`Password reset instructions sent to ${forgotPasswordEmail}`);
+      setShowForgotPassword(false);
+      setForgotPasswordEmail('');
+    } catch (error) {
+      console.error('Forgot password error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Forgot Password Modal
+  const ForgotPasswordModal = () => (
+    <div className="forgot-password-modal">
+      <div className="forgot-password-content">
+        <h2>Reset Your Password</h2>
+        <p>Enter your email address and we'll send you instructions to reset your password.</p>
+        <form onSubmit={handleForgotPassword}>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={forgotPasswordEmail}
+            onChange={(e) => setForgotPasswordEmail(e.target.value)}
+            required
+          />
+          <div className="forgot-password-buttons">
+            <button type="button" onClick={() => setShowForgotPassword(false)}>
+              Cancel
+            </button>
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? 'Sending...' : 'Send Instructions'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+
   return (
     <div className="auth-container">
       {error && (
@@ -82,6 +132,8 @@ const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel, 
           Error: {error}
         </div>
       )}
+      
+      {showForgotPassword && <ForgotPasswordModal />}
       
       <div className="container" id="container">
         <div className="form-container sign-up-container">
@@ -150,7 +202,7 @@ const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel, 
               <option value="seller">Seller</option>
               <option value="both">Both</option>
             </select>
-            <button type="submit" disabled={isLoading} style={{ marginTop: '20px' }}>
+            <button type="submit" disabled={isLoading} className="sign-up-button">
               {isLoading ? 'Signing Up...' : 'Sign Up'}
             </button>
           </form>
@@ -186,7 +238,11 @@ const AuthForm = ({ onLogin, onRegister, mode, switchMode, onSuccess, onCancel, 
               onChange={handleChange}
               required 
             />
-            <button type="button" className="forgot-password-link">
+            <button 
+              type="button" 
+              className="forgot-password-link"
+              onClick={() => setShowForgotPassword(true)}
+            >
               Forgot your password?
             </button>
             <button type="submit" disabled={isLoading}>

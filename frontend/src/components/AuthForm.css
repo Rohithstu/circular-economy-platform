@@ -43,9 +43,9 @@
 
 .auth-container button {
   border-radius: 20px;
-  border: 1px solid hsl(125, 100%, 58%);
-  background-color: hsl(108, 100%, 58%);
-  color: #FFFFFF;
+  border: 1px solid hsl(120, 6%, 16%);
+  background-color: hsl(183, 26%, 82%);
+  color: #131212;
   font-size: 12px;
   font-weight: bold;
   padding: 12px 45px;
@@ -70,11 +70,11 @@
 
 .auth-container button.ghost {
   background-color: transparent;
-  border-color: #FFFFFF;
+  border-color: #0c0c0c;
 }
 
 .auth-container form {
-  background-color: #FFFFFF;
+  background-color: #c5b3b3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,7 +86,7 @@
 
 .auth-container input,
 .auth-container select {
-  background-color: #eee;
+  background-color: #faf8f6;
   border: none;
   padding: 12px 15px;
   margin: 8px 0;
@@ -105,10 +105,10 @@
 }
 
 .auth-container .container {
-  background-color: #fff;
+  background-color: #c5b3b3;
   border-radius: 10px;
-  box-shadow: 0 14px 28px #79928f, 
-              0 10px 10px rgba(236, 232, 232, 0.938);
+  box-shadow: 0 14px 28px #818383, 
+              0 10px 10px rgba(155, 150, 150, 0.938);
   position: relative;
   overflow: hidden;
   width: 768px;
@@ -175,9 +175,9 @@
 }
 
 .auth-container .overlay {
-  background: hsl(96, 96%, 41%);
-  background: -webkit-linear-gradient(to right, hsl(110, 93%, 44%), hwb(120 26% 0%));
-  background: linear-gradient(to right, hsl(108, 100%, 58%), hsl(118, 100%, 63%));
+  background: hsl(64, 95%, 47%);
+  background: -webkit-linear-gradient(to right, hsl(64, 95%, 47%), hsl(64 95% 47%));
+  background: linear-gradient(to right, hsl(167, 77%, 80%), hsl(64, 82%, 74%));
   background-repeat: no-repeat;
   background-size: cover;
   background-position: 0 0;

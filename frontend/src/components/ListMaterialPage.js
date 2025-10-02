@@ -108,7 +108,9 @@ const ListMaterialPage = ({ user, setCurrentPage, openAuthModal, API_BASE_URL })
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/materials`, {
+      
+      // ✅ Use the correct API endpoint and ensure imageUrl is set
+      const response = await fetch(`${API_BASE_URL}/api/materials`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,8 +118,12 @@ const ListMaterialPage = ({ user, setCurrentPage, openAuthModal, API_BASE_URL })
         },
         body: JSON.stringify({
           ...formData,
+          // ✅ Use the first image as imageUrl for MaterialCard compatibility
+          imageUrl: formData.images.length > 0 ? formData.images[0] : '',
+          images: formData.images, // ✅ Keep all images
           userId: user.id,
-          company: user.company
+          company: user.company,
+          sellerName: user.name // ✅ Add seller name for display
         }),
       });
 
